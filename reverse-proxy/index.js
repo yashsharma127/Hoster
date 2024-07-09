@@ -16,6 +16,12 @@ app.use((req, res) => {
     return proxy.web(req, res, { target: resolvesTo, changeOrigin: true })
 
 })
- 
+
+proxy.on('proxyReq', (proxyReq, req, res) => {
+    const url = req.url;
+    if (url === '/')
+        proxyReq.path += 'index.html'
+
+})
 
 app.listen(PORT, () => console.log(`Reverse Proxy Running..${PORT}`))
