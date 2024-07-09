@@ -36,6 +36,7 @@ async function init() {
         const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true })
  
         for (const file of distFolderContents) {
+            const filePath = path.join(distFolderPath, file)
              if (fs.lstatSync(filePath).isDirectory()) continue;
 
             console.log('uploading', filePath)
