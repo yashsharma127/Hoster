@@ -1,6 +1,6 @@
-# Hoster-Backend
+# Hoster 
 
-Full Backend setup for Hosing website, using AWS services, express, socker.io, redis and Node.js
+Full setup for a Hosing website, using AWS services, express, socker.io, redis and Node.js in backend and Next.js in frontend
 
 ## Architecture
 - To be continued 
