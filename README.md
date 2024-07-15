@@ -1,18 +1,18 @@
 # Hoster
 
-Hoster is a hosting platform which can be used to deploy your project on github to a hostname, utilizing AWS services, Express, Socket.io, Redis, and Node.js for the backend, with a Next.js frontend.
+Hoster is a hosting platform which can be used to deploy your project from github using a hostname, utilizing AWS services, Express, Socket.io, Redis, and Node.js for the backend, with a Next.js frontend.
 
 ## Architecture
 
 Hoster is designed with the following architecture:
 
-- **Frontend**: Built with Next.js.
-- **Backend**: Powered by Node.js and Express, handling API requests and serving as the core server-side logic.
-- **Build Server**: Creates Docker containers, clones client GitHub repositories, builds projects, and stores build artifacts in AWS S3.
-- **Reverse Proxy**: Routes client requests to the correct build artifacts in AWS S3 using a custom reverse proxy.
-- **Redis**: Used for log storage and retrieval, providing real-time log access through Socket.io.
-- **Socket.io**: Facilitates real-time communication for log access and updates.
-- **AWS Services**: Utilizes AWS SDK for JavaScript, AWS ECR, and AWS ECS for container orchestration and deployment.
+- ``Frontend``: Built with Next.js and uses axios for fetching data from API server. 
+- ``API Server``: HTTP API Server for REST API's. 
+- ``Build Server``: Creates Docker containers, clones client GitHub repositories, builds projects, and pushes build artifacts in AWS S3.
+- ``Reverse Proxy``: Routes client requests to the correct build artifacts in AWS S3 using a custom reverse proxy.
+- ``Redis``: Used for log storage and retrieval, providing real-time log access through Socket.io.
+- ``Socket.io``: Facilitates real-time communication for log access and updates.
+- ``AWS Services``: Utilizes AWS SDK for JavaScript, AWS ECR, and AWS ECS for container orchestration and deployment and S3 for storing build codes.
 
 ## Features and Technologies Used
 
