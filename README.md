@@ -37,47 +37,38 @@ Before setting up Hoster, ensure you have the following prerequisites:
 - Redis server or service available for logging.
 - Git for version control and repository management.
 
-## Setup
+## Setup Guide
+
+This Project contains following services and folders:
+
+- `api-server`: HTTP API Server for REST API's
+- `build-server`: Docker Image code which clones, builds and pushes the build to S3
+- `s3-reverse-proxy`: Reverse Proxy the subdomains and domains to s3 bucket static assets
 
 To set up Hoster, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/hoster.git
+   git clone https://github.com/yashsharma127/Hoster.git
    cd hoster
    ```
 
-2. **Setup Frontend**:
-   ```bash
-   cd hoster-frontend
-   npm install
-   ```
-   
-Now setup the Backend
-   ```bash
-   cd hoster-backend 
-   ```
+### Local Setup
 
-4. **Setup api-server**:
-   ```bash 
-   cd api-server
-   npm install
-   ```
-   Rename `.env.example` to `.env` and add the required values to each environment variable
+1. Run `npm install` in all the 3 services i.e. `api-server`, `build-server` and `reverse-proxy`
+3. Rename `.env.example` to `.env` in all the 3 services and add the required values to them.
+2. Docker build the `build-server` and push the image to AWS ECR.
+3. Setup the `api-server` by providing all the required config such as TASK ARN and CLUSTER arn.
+4. Run `node index.js` in `api-server` and `reverse-proxy`
 
-5. **Setup build-server**:
-   ```bash 
-   cd ../build-server
-   npm install
-   ```
-   Rename `.env.example` to `.env` and add the required values to each environment variable
+At this point following services would be up and running:
 
-6. **Setup reverse-proxy**:
-   ```bash 
-   cd ../reverse-proxy
-   npm install
-   ```
-   Rename `.env.example` to `.env` and add the required values to each environment variable
+| S.No | Service            | PORT    |
+| ---- | ------------------ | ------- |
+| 1    | `api-server`       | `:9000` |
+| 2    | `socket.io-server` | `:9002` |
+| 3    | `reverse-proxy`    | `:8000` |
+
 
 ## Note
 
