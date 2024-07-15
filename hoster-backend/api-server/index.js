@@ -1,43 +1,47 @@
-const express = require('express')
-const { generateSlug } = require('random-word-slugs')
-const { ECSClient, RunTaskCommand } = require('@aws-sdk/client-ecs')
-const { Server } = require('socket.io')
-const Redis = require('ioredis')
+require('dotenv').config(); 
+const express = require('express');
+const { generateSlug } = require('random-word-slugs');
+const { ECSClient, RunTaskCommand } = require('@aws-sdk/client-ecs');
+const { Server } = require('socket.io');
+const Redis = require('ioredis');
 
-const app = express()
-const PORT = 9000
+const app = express();
+const PORT = process.env.API_SERVER_PORT || 9000;
 
-const subscriber = new Redis('')
+const subscriber = new Redis({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+});
 
-const io = new Server({ cors: '*' })
+const io = new Server({ cors: '*' });
 
 io.on('connection', socket => {
     socket.on('subscribe', channel => {
-        socket.join(channel)
-        socket.emit('message', `Joined ${channel}`)
-    })
-})
+        socket.join(channel);
+        socket.emit('message', `Joined ${channel}`);
+    });
+});
 
-io.listen(9002, () => console.log('Socket Server 9002'))
+io.listen(process.env.SOCKET_SERVER_PORT || 9002, () => console.log('Socket Server Running on port', process.env.SOCKET_SERVER_PORT || 9002));
 
 const ecsClient = new ECSClient({
-    region: '',
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId: '',
-        secretAccessKey: ''
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
-})
+});
 
 const config = {
-    CLUSTER: '',
-    TASK: ''
-}
+    CLUSTER: process.env.ECS_CLUSTER,
+    TASK: process.env.ECS_TASK_DEFINITION
+};
 
-app.use(express.json())
+app.use(express.json());
 
 app.post('/project', async (req, res) => {
-    const { gitURL, slug } = req.body
-    const projectSlug = slug ? slug : generateSlug()
+    const { gitURL, slug } = req.body;
+    const projectSlug = slug ? slug : generateSlug();
 
     // Spin the container
     const command = new RunTaskCommand({
@@ -48,8 +52,8 @@ app.post('/project', async (req, res) => {
         networkConfiguration: {
             awsvpcConfiguration: {
                 assignPublicIp: 'ENABLED',
-                subnets: ['', '', ''],
-                securityGroups: ['']
+                subnets: process.env.ECS_SUBNETS.split(','),
+                securityGroups: [process.env.ECS_SECURITY_GROUPS]
             }
         },
         overrides: {
@@ -63,23 +67,21 @@ app.post('/project', async (req, res) => {
                 }
             ]
         }
-    })
+    });
 
     await ecsClient.send(command);
 
-    return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:8000` } })
-
-})
+    return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:8000` } });
+});
 
 async function initRedisSubscribe() {
-    console.log('Subscribed to logs....')
-    subscriber.psubscribe('logs:*')
+    console.log('Subscribed to logs....');
+    subscriber.psubscribe('logs:*');
     subscriber.on('pmessage', (pattern, channel, message) => {
-        io.to(channel).emit('message', message)
-    })
+        io.to(channel).emit('message', message);
+    });
 }
 
+initRedisSubscribe();
 
-initRedisSubscribe()
-
-app.listen(PORT, () => console.log(`API Server Running..${PORT}`))
+app.listen(PORT, () => console.log(`API Server Running on port ${PORT}`));
